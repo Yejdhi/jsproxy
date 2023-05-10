@@ -1,46 +1,142 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <title>Page Sandbox</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <base target="_blank">
-  <style>
-    body {
-      padding: 0 0.5em;
-    }
-    .box {
-      margin-top: 1em;
-    }
-    #txtURL {
-      width: 100%;
-      height: 2em;
-      text-indent: 0.5em;
-      padding: 0.25em 0;
-    }
-    #btnGo {
-      width: 100%;
-      font-size: 1.5em;
-    }
-    #list a {
-      margin: 1em;
-    }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <input id="txtURL" type="text" value="www.google.com" autofocus>
-  </div>
-  <div class="box">
-    <button id="btnGo">Go</button>
-  </div>
-  <div class="box">
+  <head>
+    <title>JsProxy</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <base target="_blank">
+    <style>
+/* 清除内、外间距 */
+* {
+    margin: 0;
+    padding: 0;
+    /* 添加内间距不扩大div */
+    box-sizing: border-box;
+}
+
+.box {
+    height: 100vh;
+    background: #09203f;
+    display: flex;
+    /* 垂直居中 */
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 纵向排列 */
+    flex-direction: column;
+    /* 无法选中文字 */
+    user-select: none;
+    /* 元素之间的上下间距 */
+    gap: 20px;
+}
+
+.box h2 {
+    color: white;
+}
+
+.inputBox {
+    position: relative;
+    width: 300px;
+}
+
+.inputBox input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: none;
+    border-radius: 5px;
+    outline: none;
+    color: white;
+    font-size: 1em;
+    /* 过渡 */
+    transition: 0.5s;
+}
+
+.inputBox span {
+    position: absolute;
+    left: 0;
+    padding: 15px;
+    pointer-events: none;
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.5);
+    /* 大写字母 */
+    text-transform: uppercase;
+    /* 过渡 */
+    transition: 0.5s;
+}
+
+.inputBox input:valid~span,
+.inputBox input:focus~span {
+    color: #50c9c3;
+    /* 变换位置 */
+    transform: translateX(15px) translateY(-7px);
+    font-size: 0.65em;
+    padding: 0 5px;
+    background: #09203f;
+    letter-spacing: 0.1em;
+}
+
+.inputBox:nth-child(3) input:valid~span,
+.inputBox:nth-child(3) input:focus~span {
+    background: #50c9c3;
+    color: white;
+}
+
+.inputBox input:valid,
+.inputBox input:focus {
+    border: 1px solid #50c9c3;
+}
+
+/* 给按钮写样式 */
+.buttonBox button {
+    padding: 10px 30px;
+    border-radius: 5px;
+    background: none;
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+}
+
+.buttonBox button:hover {
+    color: #50c9c3;
+    border: 1px solid #50c9c3;
+}
+a {
+
+    color: white;
+    text-decoration: none;
+}
+
+p {
+    color: rgba(255, 255, 255, 0.5);
+}
+    </style>
+  </head>
+  <body>
+  <!--2023.5.10 Yejdhi 原本是有个动画的，大概是因为js所以没了-->
+    <div class="box">
+      <h2>
+        <a href="https://github.com/Yejdhi/jsproxy">JsProxy</a>
+      </h2>
+      <div class="inputBox">
+        <input id="txtURL" type="text" required="required">
+        <span>输入网址</span>
+      </div>
+      <div class="buttonBox">
+        <button id="btnGo">Go</button>
+      </div>
+    </div>
+
+<!--似乎演示站全部寄了，这个好像没用了，注释掉了-->
+<!--
     <span>切换线路:</span>
     <select id="selNode"></select>
-  </div>
-  <div class="box" id="list">
-  </div>
-  <script>
+    <div class="box" id="list">
+    </div>
+-->
+
+    <script>
     const PAGE_CONF_SET = 110
     const PAGE_CONF_GET = 111
 
@@ -70,7 +166,6 @@
     }
     txtURL.setSelectionRange(0, txtURL.value.length)
 
-
     function onSwMsg(e) {
       const [cmd, msg] = e.data
 
@@ -96,13 +191,15 @@
     function onSwFail(err) {
       txtURL.value = err
     }
-
+/*这个注释掉不知道会不会出问题*/
+/*
     selNode.onchange = function() {
       const item = this.options[this.selectedIndex]
       const node = item.value
       conf.node_default = node
       sendMsgToSw(PAGE_CONF_SET, conf)
     }
+*/
 
     function sendMsgToSw(cmd, val) {
       const ctl = sw.controller
@@ -111,30 +208,6 @@
         return
       }
       ctl.postMessage([cmd, val])
-    }
-
-    const SITE_LIST = [
-      ['google', ''],
-      ['youtube', ''],
-      ['twitter', 'twitter.com/google'],
-      ['flickr', ''],
-      ['quora', 'www.quora.com/topic/JavaScript-programming-language'],
-      ['twitch', 'www.twitch.tv/'],
-      ['reddit', ''],
-      ['wiki', 'zh.wikipedia.org/'],
-      ['gist', 'gist.github.com/'],
-      ['facebook', 'facebook.com/Google/'],
-      ['blogger', ''],
-    ]
-
-    function showIcons() {
-      list.innerHTML = SITE_LIST.map(v => {
-        let [id, url] = v
-        url = url || `www.${id}.com/`
-        return `\
-<a rel="noopener noreferrer" href=./-----https://${url}>\
-<img width=128 height=128 src=__sys__/assets/ico/${id}.png></a>`
-      }).join('')
     }
 
     function addNodeItem(id, text) {
@@ -163,6 +236,6 @@
       }
       updateSelected()
     }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
